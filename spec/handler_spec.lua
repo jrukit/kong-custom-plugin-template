@@ -1,5 +1,5 @@
-local handler = require 'kong.plugins.basic-authorization.handler'
-describe('basic-authorization tests-', function()
+local handler = require 'kong.plugins.basic-authentication.handler'
+describe('basic-authentication tests-', function()
   local config = {
     username = 'lnwza',
     password = '1234'
@@ -119,7 +119,7 @@ describe('basic-authorization tests-', function()
     end)
   end)
 
-  describe('do_authorization', function()
+  describe('do_authentication', function()
     it('should be true when credentials from authorization matched the configured credentials.', function()
       local authorization = 'Basic bG53emE6MTIzNA=='
 
@@ -153,7 +153,7 @@ describe('basic-authorization tests-', function()
     end)
   end)
 
-  describe('BasicAuhtorizationHandler:access', function()
+  describe('BasicAuhtenticationHandler:access', function()
     local mock_kong = {}
     _G.kong = mock_kong
 

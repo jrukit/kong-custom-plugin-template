@@ -1,4 +1,4 @@
-local BasicAuhtorizationHandler = {
+local BasicAuhtenticationHandler = {
   VERSION = '1.0.0',
   PRIORITY = -1,
 }
@@ -29,7 +29,7 @@ local function decode_credentials_base64(base64)
   return username, password
 end
 
-local function do_authorization(conf, authorization)
+local function do_authentication(conf, authorization)
   local schema, base64 = parse_authorization(authorization)
   if schema ~= 'Basic' then
     return false
@@ -39,15 +39,15 @@ local function do_authorization(conf, authorization)
   return username == conf.username and password == conf.password
 end
 
-function BasicAuhtorizationHandler:access(conf)
+function BasicAuhtenticationHandler:access(conf)
   local authorization = kong.request.get_header('Authorization')
-  if not authorization or not do_authorization(conf, authorization) then
+  if not authorization or not do_authentication(conf, authorization) then
     return kong.response.exit(401, 'Unauthorized')
   end
 end
 
-BasicAuhtorizationHandler.do_authorization = do_authorization
-BasicAuhtorizationHandler.parse_authorization = parse_authorization
-BasicAuhtorizationHandler.decode_credentials_base64 = decode_credentials_base64
-BasicAuhtorizationHandler.parse_credentials = parse_credentials
-return BasicAuhtorizationHandler
+BasicAuhtenticationHandler.do_authorization = do_authentication
+BasicAuhtenticationHandler.parse_authorization = parse_authorization
+BasicAuhtenticationHandler.decode_credentials_base64 = decode_credentials_base64
+BasicAuhtenticationHandler.parse_credentials = parse_credentials
+return BasicAuhtenticationHandler
