@@ -3,20 +3,13 @@ local BasicAuhtenticationHandler = {
   PRIORITY = -1,
 }
 
-local function parse_credentials(credentials)
-  local colon_index = string.find(credentials, ':')
+local function split_once(credentials, delimiter)
+  local colon_index = string.find(credentials, delimiter)
   if not colon_index then
     return credentials, nil
   end
-  return string.sub(credentials, 1, colon_index - 1), string.sub(credentials, colon_index + 1)
-end
 
-local function parse_authorization(authorization)
-  local space_index = string.find(authorization, ' ')
-  if not space_index then
-    return authorization, nil
-  end
-  return string.sub(authorization, 1, space_index - 1), string.sub(authorization, space_index + 1)
+  return string.sub(credentials, 1, colon_index - 1), string.sub(credentials, colon_index + 1)
 end
 
 local function decode_credentials_base64(base64)
@@ -25,18 +18,18 @@ local function decode_credentials_base64(base64)
     return nil, nil
   end
 
-  local username, password = parse_credentials(credentials)
+  local username, password = split_once(credentials, ':')
   return username, password
 end
 
-local function do_authentication(conf, authorization)
-  local schema, base64 = parse_authorization(authorization)
-  if schema ~= 'Basic' then
-    return false
-  end
-
+local function verify_credentials(base64, conf)
   local username, password = decode_credentials_base64(base64)
   return username == conf.username and password == conf.password
+end
+
+local function do_authentication(conf, authorization)
+  local schema, base64 = split_once(authorization, ' ')
+  return schema == 'Basic' and verify_credentials(base64, conf)
 end
 
 function BasicAuhtenticationHandler:access(conf)
@@ -49,5 +42,6 @@ end
 BasicAuhtenticationHandler.do_authorization = do_authentication
 BasicAuhtenticationHandler.parse_authorization = parse_authorization
 BasicAuhtenticationHandler.decode_credentials_base64 = decode_credentials_base64
-BasicAuhtenticationHandler.parse_credentials = parse_credentials
+BasicAuhtenticationHandler.split_once = split_once
+BasicAuhtenticationHandler.verify_credentials = verify_credentials
 return BasicAuhtenticationHandler

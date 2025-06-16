@@ -5,50 +5,72 @@ describe('basic-authentication tests-', function()
     password = '1234'
   }
 
-  describe('parse_credentials', function()
-    it('should be username and password when credentials have username and password.', function()
-      local credentials = 'lnwza:1234'
+  describe('split_once', function()
+    it('should be pair value when delimiter is colon.', function()
+      local first, second = handler.split_once('lnwza:1234', ':')
 
-      local username, password = handler.parse_credentials(credentials)
-
-      assert.is_equal(username, 'lnwza')
-      assert.is_equal(password, '1234')
+      assert.is_equal(first, 'lnwza')
+      assert.is_equal(second, '1234')
     end)
 
-    it('should be empty and password when credentials have no username.', function()
-      local credentials = ':1234'
+    it('should be empty and second value when empty string before colon.', function()
+      local first, second = handler.split_once(':1234', ':')
 
-      local username, password = handler.parse_credentials(credentials)
-
-      assert.is_equal(username, '')
-      assert.is_equal(password, '1234')
+      assert.is_equal(first, '')
+      assert.is_equal(second, '1234')
     end)
 
-    it('should be username and empty when credentials have no password.', function()
+    it('should be first value and empty value when empty string after colon.', function()
       local credentials = 'lnwza:'
 
-      local username, password = handler.parse_credentials(credentials)
+      local first, second = handler.split_once('lnwza:', ':')
 
-      assert.is_equal(username, 'lnwza')
-      assert.is_equal(password, '')
+      assert.is_equal(first, 'lnwza')
+      assert.is_equal(second, '')
     end)
 
-    it('should be empty and empty when credentials have no each username and password.', function()
-      local credentials = ':'
+    it('should be empty and empty when empty between colon.', function()
+      local first, second = handler.split_once(':', ':')
 
-      local username, password = handler.parse_credentials(credentials)
-
-      assert.is_equal(username, '')
-      assert.is_equal(password, '')
+      assert.is_equal(first, '')
+      assert.is_equal(second, '')
     end)
 
-    it('should be username and null when invalid credentials format.', function()
+    it('should be pair value when delimiter is space.', function()
+      local first, second = handler.split_once('Basic bG53emE6MTIzNA==', ' ')
+
+      assert.is_equal(first, 'Basic')
+      assert.is_equal(second, 'bG53emE6MTIzNA==')
+    end)
+
+    it('should be empty and second value when empty before space.', function()
+      local first, second = handler.split_once(' bG53emE6MTIzNA==', ' ')
+
+      assert.is_equal(first, '')
+      assert.is_equal(second, 'bG53emE6MTIzNA==')
+    end)
+
+    it('should be first value and empty value when empty after space.', function()
+      local first, second = handler.split_once(' ', ' ')
+
+      assert.is_equal(first, '')
+      assert.is_equal(second, '')
+    end)
+
+    it('should be empty and empty value when empty between space.', function()
+      local first, second = handler.split_once('Basic ', ' ')
+
+      assert.is_equal(first, 'Basic')
+      assert.is_equal(second, '')
+    end)
+
+    it('should be first and null when invalid format.', function()
       local credentials = 'invalid'
 
-      local username, password = handler.parse_credentials(credentials)
+      local first, second = handler.split_once('invalid', ':')
 
-      assert.is_equal(username, 'invalid')
-      assert.is_equal(password, nil)
+      assert.is_equal(first, 'invalid')
+      assert.is_equal(second, nil)
     end)
   end)
 
@@ -81,41 +103,37 @@ describe('basic-authentication tests-', function()
     end)
   end)
 
-  describe('parse_authorization', function()
-    it('should be schema and base64 when valid authorization format.', function()
-      local authorization = 'Basic bG53emE6MTIzNA=='
+  describe('verify_credentials', function()
+    it('should be true when credentials base64 matched the configured credentials', function()
+      local base64 = 'bG53emE6MTIzNA=='
 
-      local schema, base64 = handler.parse_authorization(authorization)
+      local actual = handler.verify_credentials(base64, config)
 
-      assert.is_equal(schema, 'Basic')
-      assert.is_equal(base64, 'bG53emE6MTIzNA==')
+      assert.is_true(actual)
     end)
 
-    it('should be schema and base64 when valid authorization format with unknown username.', function()
-      local authorization = 'Basic dW5rbm93bjoxMjM0'
+    it('should be false when username base64 not matched the configured credentials', function()
+      local base64 = 'dW5rbm93bjoxMjM0'
 
-      local schema, base64 = handler.parse_authorization(authorization)
+      local actual = handler.verify_credentials(base64, config)
 
-      assert.is_equal(schema, 'Basic')
-      assert.is_equal(base64, 'dW5rbm93bjoxMjM0')
+      assert.is_false(actual)
     end)
 
-    it('should be schema and token when authorization is bearer.', function()
-      local authorization = 'Bearer mock-access-token'
+    it('should be false when password base64 not matched the configured credentials', function()
+      local base64 = 'bG53emE6MTIzNDU='
 
-      local schema, token = handler.parse_authorization(authorization)
+      local actual = handler.verify_credentials(base64, config)
 
-      assert.is_equal(schema, 'Bearer')
-      assert.is_equal(token, 'mock-access-token')
+      assert.is_false(actual)
     end)
 
-    it('should be schema and nil when invalid authorization format.', function()
-      local authorization = 'invalid-format'
+    it('should be false when malformed base64 not matched the configured credentials', function()
+      local base64 = 'malformed'
 
-      local schema, value = handler.parse_authorization(authorization)
+      local actual = handler.verify_credentials(base64, config)
 
-      assert.is_equal(schema, 'invalid-format')
-      assert.is_nil(value)
+      assert.is_false(actual)
     end)
   end)
 
@@ -138,14 +156,6 @@ describe('basic-authentication tests-', function()
 
     it('should be false when authorization is bearer.', function()
       local authorization = 'Bearer mock-access-token'
-
-      local actual = handler.do_authorization(config, authorization)
-
-      assert.is_false(actual)
-    end)
-
-    it('should be false when valid authorization format but invalid base64.', function()
-      local authorization = 'Basic invalid-base64-format'
 
       local actual = handler.do_authorization(config, authorization)
 
