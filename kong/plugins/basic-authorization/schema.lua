@@ -1,5 +1,5 @@
 return {
-  name = 'my-plugin',
+  name = 'basic-authorization',
   fields = {
     {
       config = {
