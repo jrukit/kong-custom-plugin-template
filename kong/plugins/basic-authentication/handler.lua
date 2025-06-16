@@ -12,18 +12,13 @@ local function split_once(credentials, delimiter)
   return string.sub(credentials, 1, colon_index - 1), string.sub(credentials, colon_index + 1)
 end
 
-local function decode_credentials_base64(base64)
+local function verify_credentials(base64, conf)
   local credentials = ngx.decode_base64(base64)
   if not credentials then
-    return nil, nil
+    return false
   end
 
   local username, password = split_once(credentials, ':')
-  return username, password
-end
-
-local function verify_credentials(base64, conf)
-  local username, password = decode_credentials_base64(base64)
   return username == conf.username and password == conf.password
 end
 
@@ -40,8 +35,6 @@ function BasicAuhtenticationHandler:access(conf)
 end
 
 BasicAuhtenticationHandler.do_authorization = do_authentication
-BasicAuhtenticationHandler.parse_authorization = parse_authorization
-BasicAuhtenticationHandler.decode_credentials_base64 = decode_credentials_base64
 BasicAuhtenticationHandler.split_once = split_once
 BasicAuhtenticationHandler.verify_credentials = verify_credentials
 return BasicAuhtenticationHandler

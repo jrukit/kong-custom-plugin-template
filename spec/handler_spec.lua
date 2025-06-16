@@ -74,35 +74,6 @@ describe('basic-authentication tests-', function()
     end)
   end)
 
-  describe('decode_credentials_base64', function()
-    it('should be username and password when valid base64 format.', function()
-      local base_64 = 'bG53emE6MTIzNA=='
-
-      local username, password = handler.decode_credentials_base64(base_64)
-
-      assert.is_equal(username, 'lnwza')
-      assert.is_equal(password, '1234')
-    end)
-
-    it('should be empty and password when valid base64 format with unknown username.', function()
-      local base_64 = 'dW5rbm93bjoxMjM0'
-
-      local username, password = handler.decode_credentials_base64(base_64)
-
-      assert.is_equal(username, 'unknown')
-      assert.is_equal(password, '1234')
-    end)
-
-    it('should be nil and nil when malform base64.', function()
-      local base_64 = 'malformed-base64'
-
-      local username, password = handler.decode_credentials_base64(base_64)
-
-      assert.is_nil(username)
-      assert.is_nil(password)
-    end)
-  end)
-
   describe('verify_credentials', function()
     it('should be true when credentials base64 matched the configured credentials', function()
       local base64 = 'bG53emE6MTIzNA=='
