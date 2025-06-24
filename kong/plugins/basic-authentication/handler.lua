@@ -3,13 +3,13 @@ local BasicAuhtenticationHandler = {
   PRIORITY = -1,
 }
 
-local function split_once(credentials, delimiter)
-  local colon_index = string.find(credentials, delimiter)
-  if not colon_index then
-    return credentials, nil
+local function split_once(text, delimiter)
+  local delimiter_index = string.find(text, delimiter)
+  if not delimiter_index then
+    return text, nil
   end
 
-  return string.sub(credentials, 1, colon_index - 1), string.sub(credentials, colon_index + 1)
+  return string.sub(text, 1, delimiter_index - 1), string.sub(text, delimiter_index + 1)
 end
 
 local function verify_credentials(base64, conf)
