@@ -5,16 +5,16 @@ describe('basic-authentication tests-', function()
     password = '1234'
   }
 
-  describe('split_once', function()
+  describe('split', function()
     it('should be pair value when delimiter is colon.', function()
-      local first, second = handler.split_once('lnwza:1234', ':')
+      local first, second = handler.split('lnwza:1234', ':')
 
       assert.is_equal(first, 'lnwza')
       assert.is_equal(second, '1234')
     end)
 
-    it('should be empty and second value when empty string before colon.', function()
-      local first, second = handler.split_once(':1234', ':')
+    it('should be empty value and second value when empty string before colon.', function()
+      local first, second = handler.split(':1234', ':')
 
       assert.is_equal(first, '')
       assert.is_equal(second, '1234')
@@ -23,51 +23,30 @@ describe('basic-authentication tests-', function()
     it('should be first value and empty value when empty string after colon.', function()
       local credentials = 'lnwza:'
 
-      local first, second = handler.split_once('lnwza:', ':')
+      local first, second = handler.split('lnwza:', ':')
 
       assert.is_equal(first, 'lnwza')
       assert.is_equal(second, '')
     end)
 
-    it('should be empty and empty when empty between colon.', function()
-      local first, second = handler.split_once(':', ':')
+    it('should be empty value and empty value when empty between colon.', function()
+      local first, second = handler.split(':', ':')
 
       assert.is_equal(first, '')
       assert.is_equal(second, '')
     end)
 
     it('should be pair value when delimiter is space.', function()
-      local first, second = handler.split_once('Basic bG53emE6MTIzNA==', ' ')
+      local first, second = handler.split('Basic bG53emE6MTIzNA==', ' ')
 
       assert.is_equal(first, 'Basic')
       assert.is_equal(second, 'bG53emE6MTIzNA==')
-    end)
-
-    it('should be empty and second value when empty before space.', function()
-      local first, second = handler.split_once(' bG53emE6MTIzNA==', ' ')
-
-      assert.is_equal(first, '')
-      assert.is_equal(second, 'bG53emE6MTIzNA==')
-    end)
-
-    it('should be first value and empty value when empty after space.', function()
-      local first, second = handler.split_once(' ', ' ')
-
-      assert.is_equal(first, '')
-      assert.is_equal(second, '')
-    end)
-
-    it('should be empty and empty value when empty between space.', function()
-      local first, second = handler.split_once('Basic ', ' ')
-
-      assert.is_equal(first, 'Basic')
-      assert.is_equal(second, '')
     end)
 
     it('should be first and null when invalid format.', function()
       local credentials = 'invalid'
 
-      local first, second = handler.split_once('invalid', ':')
+      local first, second = handler.split('invalid', ':')
 
       assert.is_equal(first, 'invalid')
       assert.is_equal(second, nil)
@@ -143,7 +122,7 @@ describe('basic-authentication tests-', function()
     }
     stub(mock_kong.response, "exit")
 
-    it('should return when credentials request matched the configed credentials.', function()
+    it('should pass through when credentials request matched the configured credentials.', function()
       mock_kong.request = {
         get_header = function()
           return 'Basic bG53emE6MTIzNA=='
@@ -155,7 +134,7 @@ describe('basic-authentication tests-', function()
       assert.stub(mock_kong.response.exit).was_not_called()
     end)
 
-    it('should be 401 when credentials request not matched the configed credentials.', function()
+    it('should be 401 when credentials request not matched the configured credentials.', function()
       mock_kong.request = {
         get_header = function()
           return 'Basic dW5rbm93bjoxMjM0'

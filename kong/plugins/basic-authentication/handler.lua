@@ -3,7 +3,7 @@ local BasicAuhtenticationHandler = {
   PRIORITY = -1,
 }
 
-local function split_once(text, delimiter)
+local function split(text, delimiter)
   local delimiter_index = string.find(text, delimiter)
   if not delimiter_index then
     return text, nil
@@ -18,12 +18,12 @@ local function verify_credentials(base64, conf)
     return false
   end
 
-  local username, password = split_once(credentials, ':')
+  local username, password = split(credentials, ':')
   return username == conf.username and password == conf.password
 end
 
 local function do_authentication(conf, authorization)
-  local schema, base64 = split_once(authorization, ' ')
+  local schema, base64 = split(authorization, ' ')
   return schema == 'Basic' and verify_credentials(base64, conf)
 end
 
@@ -34,7 +34,7 @@ function BasicAuhtenticationHandler:access(conf)
   end
 end
 
-BasicAuhtenticationHandler.do_authorization = do_authentication
-BasicAuhtenticationHandler.split_once = split_once
+BasicAuhtenticationHandler.split = split
 BasicAuhtenticationHandler.verify_credentials = verify_credentials
+BasicAuhtenticationHandler.do_authorization = do_authentication
 return BasicAuhtenticationHandler
