@@ -36,8 +36,7 @@ function CustomBasicAuthenticationHandler:access(config)
   end
 end
 
-CustomBasicAuthenticationHandler.do_authentication = do_authentication
-CustomBasicAuthenticationHandler.verify_credentials = verify_credentials
-CustomBasicAuthenticationHandler.split_authorization = split_authorization
 CustomBasicAuthenticationHandler.split = split
+CustomBasicAuthenticationHandler.verify_credentials = verify_credentials
+CustomBasicAuthenticationHandler.do_authentication = do_authentication
 return CustomBasicAuthenticationHandler
