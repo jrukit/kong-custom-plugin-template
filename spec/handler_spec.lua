@@ -74,6 +74,14 @@ describe('custom-basic-authentication tests -', function()
       assert.is_false(actual)
     end)
 
+    it('should be false when client password is not matched.', function()
+      local credentials_base64 = 'bG53emEwMDc6MTIzNDU='
+
+      local actual = handler.verify_credentials(config, credentials_base64)
+
+      assert.is_false(actual)
+    end)
+    
     it('should be false when credentials base64 malformed.', function()
       local credentials_base64 = 'malformed'
 

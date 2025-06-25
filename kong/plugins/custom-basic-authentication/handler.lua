@@ -18,7 +18,7 @@ local function verify_credentials(config, credentials_base64)
   end
 
   local username, password = split(credentials, ':')
-  return username == config.username
+  return username == config.username and password == config.password
 end
 
 local function do_authentication(config, authorization)

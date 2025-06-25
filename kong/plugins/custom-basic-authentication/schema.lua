@@ -1,10 +1,13 @@
 return {
-  name = 'my-plugin',
+  name = 'custom-basic-authentication',
   fields = {
     {
       config = {
         type = 'record',
-        fields = {}
+        fields = {
+          { username = { type = "string", required = true } },
+          { password = { type = "string", required = true } }
+        }
       }
     }
   }
